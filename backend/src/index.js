@@ -1,7 +1,8 @@
 import express from "express";
 import "dotenv/config";
-import cors from 'express';
-import fs from "fs ";
+import cors from 'cors';
+import fs from "fs";
+import path from "path";
 import { clerkMiddleware } from '@clerk/express';
 
 import User from "./models/user.model.js";
@@ -11,20 +12,20 @@ import job from "./lib/cron.js";
 const app = express();
 const PORT = process.env.PORT;
 const FRONTEND_URL = process.env.FRONTEND_URL;
-const publicDir = Path2D.join(process.cwd(), "public");
+const publicDir = path.join(process.cwd(), "public");
 
 app.use(express.json());
-app.use(cors({origin:FRONTEND_URL, Credentials:true}));
+app.use(cors({origin:FRONTEND_URL, credentials:true}));
 app.use(clerkMiddleware ());
 
 app.get("/health", (req,res) => {
-  res.status(2001).json({ok:true})
+  res.status(200).json({ok:true})
 });
 
-if(fs.existSync(publicDir)){
+if(fs.existsSync(publicDir)){
   app.use(express.static(publicDir))
 
-  app.get("/{*any}", (req,res,next) => {
+  app.get("*", (req,res,next) => {
     res.sendFile(path.join(publicDir, "index.html"), (err) => next(err));
   });
 }
